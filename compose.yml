@@ -1,0 +1,17 @@
+services:
+  crustypump:
+    image: qajus/crustypump:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crustypump
+    network_mode: host
+    environment:
+      HEATPUMP_PIN: "${HEATPUMP_PIN:?HEATPUMP_PIN must be set}"
+      HEATPUMP_IP: "${HEATPUMP_IP:?HEATPUMP_IP must be set}"
+      INFLUX_URL: "${INFLUX_URL:?INFLUX_URL must be set}"
+      INFLUX_ORG: "${INFLUX_ORG:?INFLUX_ORG must be set}"
+      INFLUX_BUCKET: "${INFLUX_BUCKET:?INFLUX_BUCKET must be set}"
+      INFLUX_TOKEN: "${INFLUX_TOKEN:?INFLUX_TOKEN must be set}"
+      CRON_EXPRESSION: "${CRON_EXPRESSION}"
+    restart: unless-stopped

@@ -2,7 +2,7 @@ use crate::structs::{self, ChannelTypes, ParsedChannels};
 use chrono::{DateTime, Local, Utc};
 use futures::stream;
 use influxdb2::{Client, models::DataPoint};
-use log::{error, info};
+use log::{debug, error};
 
 pub async fn write_to_influx(
     cfg: &structs::Config,
@@ -26,6 +26,7 @@ pub async fn write_to_influx(
                 ChannelTypes::Bool(val) => DataPoint::builder(measurement).field(name, *val),
                 ChannelTypes::Str(val) => DataPoint::builder(measurement).field(name, val.clone()),
             };
+            debug!("{}:{:?}", name, channel_type_value);
 
             match builder.timestamp(ts).build() {
                 Ok(p) => Some(p),
@@ -41,7 +42,7 @@ pub async fn write_to_influx(
 
     match client.write(&cfg.influx_bucket, s).await {
         Ok(()) => {
-            info!("Influx write complete.");
+            debug!("Influx write complete.");
         }
         Err(e) => {
             error!("Error while writing to Influx: {e}");
