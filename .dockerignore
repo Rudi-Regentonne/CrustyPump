@@ -1,0 +1,7 @@
+target
+dashboard
+.git
+.env
+*.tar
+*.log
+*.patch

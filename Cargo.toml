@@ -13,10 +13,8 @@ log = "0.4.29"
 env_logger = "0.11.8"
 serde = "1.0.228"
 serde_json = "1.0.145"
-influxdb2 = "0.5.2"
-influxdb2-structmap = "0.2.0"
-chrono = "0.4.42"
-futures = "0.3.31"
+chrono = { version = "0.4.42", features = ["serde"] }
+sqlx = { version = "0.8", features = ["postgres", "runtime-tokio", "tls-native-tls", "chrono", "migrate"] }
 tokio-cron-scheduler = "0.15.1"
 
 [dev-dependencies]

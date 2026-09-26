@@ -6,10 +6,7 @@ use std::collections::HashMap;
 pub struct Config {
     pub heatpump_ip: String,
     pub heatpump_pin: String,
-    pub influx_url: String,
-    pub influx_org: String,
-    pub influx_bucket: String,
-    pub influx_token: String,
+    pub database_url: String,
     pub cron_expression: String,
 }
 impl Config {
@@ -18,14 +15,8 @@ impl Config {
             env::var("HEATPUMP_IP").map_err(|_| "HEATPUMP_IP environment variable missing")?;
         let heatpump_pin =
             env::var("HEATPUMP_PIN").map_err(|_| "HEATPUMP_PIN environment variable missing")?;
-        let influx_org =
-            env::var("INFLUX_ORG").map_err(|_| "INFLUX_ORG environment variable missing")?;
-        let influx_bucket =
-            env::var("INFLUX_BUCKET").map_err(|_| "INFLUX_BUCKET environment variable missing")?;
-        let influx_token =
-            env::var("INFLUX_TOKEN").map_err(|_| "INFLUX_TOKEN environment variable missing")?;
-        let influx_url =
-            env::var("INFLUX_URL").map_err(|_| "INFLUX_URL environment variable missing")?;
+        let database_url =
+            env::var("DATABASE_URL").map_err(|_| "DATABASE_URL environment variable missing")?;
         let cron_expression = match env::var("CRON_EXPRESSION") {
             Ok(ref v) if !v.trim().is_empty() => v.clone(),
             _ => "0 * * * * *".to_string(),
@@ -33,10 +24,7 @@ impl Config {
         Ok(Self {
             heatpump_ip,
             heatpump_pin,
-            influx_org,
-            influx_bucket,
-            influx_token,
-            influx_url,
+            database_url,
             cron_expression,
         })
     }
@@ -97,32 +85,98 @@ pub type ParsedChannels = HashMap<String, ChannelTypes>;
 mod tests {
     use super::*;
     use std::env;
+    use std::sync::Mutex;
+
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
 
     #[test]
     fn config_from_env_integration() {
+        let _guard = ENV_LOCK.lock().unwrap();
         unsafe { env::set_var("HEATPUMP_IP", "10.0.0.1") };
         unsafe { env::set_var("HEATPUMP_PIN", "0000") };
-        unsafe { env::set_var("INFLUX_ORG", "docs") };
-        unsafe { env::set_var("INFLUX_BUCKET", "test") };
-        unsafe { env::set_var("INFLUX_URL", "http://127.0.0.1:8086") };
-        unsafe { env::set_var("INFLUX_TOKEN", "token") };
+        unsafe { env::set_var("DATABASE_URL", "postgres://user:pass@localhost:5432/heatpump") };
         unsafe { env::set_var("CRON_EXPRESSION", "0 * * * * *") };
 
         let cfg = Config::from_env().expect("config read");
         assert_eq!(cfg.heatpump_ip, "10.0.0.1");
         assert_eq!(cfg.heatpump_pin, "0000");
-        assert_eq!(cfg.influx_bucket, "test");
-        assert_eq!(cfg.influx_org, "docs");
-        assert_eq!(cfg.influx_token, "token");
-        assert_eq!(cfg.influx_url, "http://127.0.0.1:8086");
+        assert_eq!(cfg.database_url, "postgres://user:pass@localhost:5432/heatpump");
         assert_eq!(cfg.cron_expression, "0 * * * * *");
 
         unsafe { env::remove_var("HEATPUMP_IP") };
         unsafe { env::remove_var("HEATPUMP_PIN") };
-        unsafe { env::remove_var("INFLUX_ORG") };
-        unsafe { env::remove_var("INFLUX_BUCKET") };
-        unsafe { env::remove_var("INFLUX_URL") };
-        unsafe { env::remove_var("INFLUX_TOKEN") };
+        unsafe { env::remove_var("DATABASE_URL") };
         unsafe { env::remove_var("CRON_EXPRESSION") };
+    }
+
+    #[test]
+    fn config_default_cron() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        unsafe { env::set_var("HEATPUMP_IP", "10.0.0.1") };
+        unsafe { env::set_var("HEATPUMP_PIN", "0000") };
+        unsafe { env::set_var("DATABASE_URL", "postgres://user:pass@localhost:5432/heatpump") };
+
+        let cfg = Config::from_env().expect("config read");
+        assert_eq!(cfg.cron_expression, "0 * * * * *");
+
+        unsafe { env::remove_var("HEATPUMP_IP") };
+        unsafe { env::remove_var("HEATPUMP_PIN") };
+        unsafe { env::remove_var("DATABASE_URL") };
+    }
+
+    #[test]
+    fn config_empty_cron_defaults() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        unsafe { env::set_var("HEATPUMP_IP", "10.0.0.1") };
+        unsafe { env::set_var("HEATPUMP_PIN", "0000") };
+        unsafe { env::set_var("DATABASE_URL", "postgres://user:pass@localhost:5432/heatpump") };
+        unsafe { env::set_var("CRON_EXPRESSION", "") };
+
+        let cfg = Config::from_env().expect("config read");
+        assert_eq!(cfg.cron_expression, "0 * * * * *");
+
+        unsafe { env::remove_var("HEATPUMP_IP") };
+        unsafe { env::remove_var("HEATPUMP_PIN") };
+        unsafe { env::remove_var("DATABASE_URL") };
+        unsafe { env::remove_var("CRON_EXPRESSION") };
+    }
+
+    #[test]
+    fn channel_type_bool_true() {
+        assert!(matches!("true".parse::<ChannelTypes>().unwrap(), ChannelTypes::Bool(true)));
+        assert!(matches!("True".parse::<ChannelTypes>().unwrap(), ChannelTypes::Bool(true)));
+        assert!(matches!("TRUE".parse::<ChannelTypes>().unwrap(), ChannelTypes::Bool(true)));
+    }
+
+    #[test]
+    fn channel_type_bool_false() {
+        assert!(matches!("false".parse::<ChannelTypes>().unwrap(), ChannelTypes::Bool(false)));
+        assert!(matches!("False".parse::<ChannelTypes>().unwrap(), ChannelTypes::Bool(false)));
+        assert!(matches!("FALSE".parse::<ChannelTypes>().unwrap(), ChannelTypes::Bool(false)));
+    }
+
+    #[test]
+    fn channel_type_int() {
+        assert!(matches!("42".parse::<ChannelTypes>().unwrap(), ChannelTypes::Int(42)));
+        assert!(matches!("-5".parse::<ChannelTypes>().unwrap(), ChannelTypes::Int(-5)));
+        assert!(matches!("0".parse::<ChannelTypes>().unwrap(), ChannelTypes::Int(0)));
+    }
+
+    #[test]
+    fn channel_type_float() {
+        assert!(matches!("23.5".parse::<ChannelTypes>().unwrap(), ChannelTypes::Float(f) if (f - 23.5).abs() < 1e-10));
+        assert!(matches!("-1.5".parse::<ChannelTypes>().unwrap(), ChannelTypes::Float(f) if (f + 1.5).abs() < 1e-10));
+    }
+
+    #[test]
+    fn channel_type_string_fallback() {
+        assert!(matches!("hello".parse::<ChannelTypes>().unwrap(), ChannelTypes::Str(ref s) if s == "hello"));
+        assert!(matches!("".parse::<ChannelTypes>().unwrap(), ChannelTypes::Str(ref s) if s.is_empty()));
+        assert!(matches!("  spaced  ".parse::<ChannelTypes>().unwrap(), ChannelTypes::Str(ref s) if s == "spaced"));
+    }
+
+    #[test]
+    fn channel_type_int_precedence_over_float() {
+        assert!(matches!("42".parse::<ChannelTypes>().unwrap(), ChannelTypes::Int(42)));
     }
 }
