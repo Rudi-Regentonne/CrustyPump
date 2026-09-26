@@ -24,13 +24,11 @@ WORKDIR /app
 
 
 COPY --from=builder /usr/src/crustypump/target/release/crustypump /usr/local/bin/crustypump
-
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/crustypump /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/crustypump
 
 
 RUN useradd -m appuser || true
-RUN chown -R appuser:appuser /usr/local/bin/crustypump /usr/local/bin/entrypoint.sh /app
+RUN chown -R appuser:appuser /usr/local/bin/crustypump /app
 USER appuser
 ENV RUST_LOG=info
 ENTRYPOINT ["/usr/local/bin/crustypump"]

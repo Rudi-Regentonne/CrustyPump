@@ -1,17 +1,55 @@
 services:
+  timescaledb:
+    image: timescale/timescaledb:2.30.1-pg16
+    container_name: crustypump-db
+    environment:
+      POSTGRES_USER: crustypump
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
+      POSTGRES_DB: heatpump
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crustypump -d heatpump"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
   crustypump:
     image: qajus/crustypump:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Containerfile
     container_name: crustypump
     network_mode: host
     environment:
-      HEATPUMP_PIN: "${HEATPUMP_PIN:?HEATPUMP_PIN must be set}"
-      HEATPUMP_IP: "${HEATPUMP_IP:?HEATPUMP_IP must be set}"
-      INFLUX_URL: "${INFLUX_URL:?INFLUX_URL must be set}"
-      INFLUX_ORG: "${INFLUX_ORG:?INFLUX_ORG must be set}"
-      INFLUX_BUCKET: "${INFLUX_BUCKET:?INFLUX_BUCKET must be set}"
-      INFLUX_TOKEN: "${INFLUX_TOKEN:?INFLUX_TOKEN must be set}"
-      CRON_EXPRESSION: "${CRON_EXPRESSION}"
+      HEATPUMP_PIN: ${HEATPUMP_PIN:?HEATPUMP_PIN must be set}
+      HEATPUMP_IP: ${HEATPUMP_IP:?HEATPUMP_IP must be set}
+      DATABASE_URL: postgres://crustypump:${DB_PASSWORD}@127.0.0.1:5432/heatpump
+      CRON_EXPRESSION: "${CRON_EXPRESSION:-0 * * * * *}"
+    depends_on:
+      timescaledb:
+        condition: service_healthy
     restart: unless-stopped
+
+  dashboard:
+    build:
+      context: ./dashboard
+    container_name: crustypump-dash
+    ports:
+      - "8050:8050"
+    volumes:
+      - ./dashboard/data:/data
+    environment:
+      DATABASE_URL: postgres://crustypump:${DB_PASSWORD}@timescaledb:5432/heatpump
+      DASHBOARD_CONFIG: /data/layout.json
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:
