@@ -45,8 +45,65 @@ Compose setzt `DATABASE_URL` selbst. Das TimescaleDB-Schema (Hypertable + Index)
 │ Chart.js-Graphen mit Zoom und Zeitbereich.         │
 │ Kacheln per Drag&Drop oder ↑↓ sortieren.           │
 │ Layouts speichern/laden. Aktuelle Ansicht als PDF. │
+│ On-Demand Fehlerprotokoll (Typst PDF Export).      │
 └────────────────────────────────────────────────────┘
 ```
+
+## Home Assistant Integration
+
+CrustyPump stellt unter `http://<HOST-IP>:8050/api/ha/status` (oder `/api/status`) alle Sensordaten sowie akute Störungen und Benachrichtigungen bereit.
+
+### Konfiguration in Home Assistant (`configuration.yaml`):
+
+```yaml
+rest:
+  - resource: http://<CRUSTYPUMP-HOST>:8050/api/ha/status
+    scan_interval: 30
+    sensor:
+      - name: "Wärmepumpe Status"
+        value_template: >
+          {% if value_json.has_error %}
+            Störung ({{ value_json.error_code }})
+          {% elif value_json.technician_active %}
+            Fachmann-Modus
+          {% else %}
+            Normal
+          {% endif %}
+        json_attributes:
+          - has_error
+          - error_code
+          - error_name
+          - error_description
+          - error_date
+          - userlevel
+          - technician_active
+    binary_sensor:
+      - name: "Wärmepumpe Störung"
+        value_template: "{{ value_json.has_error }}"
+        device_class: problem
+```
+
+### Handy-Push-Benachrichtigung bei Fehlern:
+
+```yaml
+automation:
+  - alias: "Wärmepumpe Störung Alarm"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.waermepumpe_stoerung
+        to: "on"
+    action:
+      - service: notify.notify
+        data:
+          title: "⚠️ Wärmepumpen-Störung (Code {{ state_attr('sensor.waermepumpe_status', 'error_code') }})"
+          message: "{{ state_attr('sensor.waermepumpe_status', 'error_name') }}: {{ state_attr('sensor.waermepumpe_status', 'error_description') }}"
+```
+
+## Fehlerprotokoll & Fachmann-Code Logging
+
+- **Fachmann-Code Erkennung:** Sobald am Display oder im Webinterface der Fachmann-Code eingegeben wird (`userlevel >= 2`), sendet die Wärmepumpe das Feld `loghist` mit.
+- **Automatische Archivierung:** CrustyPump erkennt dies minütlich automatisch, parst alle historischen Ereignisse und speichert sie dedupliziert in TimescaleDB (`heatpump_error_log`).
+- **On-Demand Typst PDF Export:** Über den Button im Dashboard oder direkt per `http://<HOST-IP>:8050/api/error_log.pdf` wird das Fehlerprotokoll live aus der Datenbank als PDF kompiliert.
 
 Hinweise:
 

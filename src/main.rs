@@ -122,11 +122,74 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 async fn scrape(client: reqwest::Client, cfg: Config, pool: PgPool) -> Result<(), Box<dyn std::error::Error>> {
+    // 1. Fetch info.php for active notifications, status & technician loghist
+    let info_opt = match http_client::get_data(&client, &cfg, "/data/info.php").await {
+        Ok(json_str) => match serde_json::from_str::<info_structs::InfoResponse>(&json_str) {
+            Ok(resp) => Some(resp),
+            Err(e) => {
+                log::warn!("Could not parse /data/info.php JSON: {}", e);
+                None
+            }
+        },
+        Err(e) => {
+            log::warn!("Could not fetch /data/info.php: {}", e);
+            None
+        }
+    };
+
+    if let Some(info_resp) = info_opt {
+        if let Err(e) = database::update_status(&pool, &info_resp).await {
+            error!("Error updating heatpump status: {}", e);
+        }
+
+        // Record status metrics into timescaledb
+        let mut status_channels: structs::ParsedChannels = std::collections::HashMap::new();
+        let has_err = info_resp.notiftype.as_deref() == Some("error")
+            || info_resp.notifications.as_ref().map(|n| !n.is_empty()).unwrap_or(false);
+        let err_code = info_resp.notifications.as_ref()
+            .and_then(|n| n.first())
+            .and_then(|n| n.code)
+            .unwrap_or(0);
+        let ulevel = info_resp.userlevel.unwrap_or(0);
+
+        status_channels.insert("has_error".to_string(), structs::ChannelTypes::Bool(has_err));
+        status_channels.insert("error_code".to_string(), structs::ChannelTypes::Int(err_code));
+        status_channels.insert("userlevel".to_string(), structs::ChannelTypes::Int(ulevel));
+
+        let _ = database::write_data_points(&pool, &status_channels, Local::now(), "status").await;
+
+        if let Some(ref notifs) = info_resp.notifications {
+            for notif in notifs {
+                log::warn!(
+                    "Active Heat Pump Alert: [{}] {} - {}",
+                    notif.code.unwrap_or(0),
+                    notif.name.as_deref().unwrap_or(""),
+                    notif.description.as_deref().unwrap_or("")
+                );
+            }
+        }
+
+        if let Some(ref loghist) = info_resp.loghist {
+            info!("Technician loghist detected (userlevel {})! Parsing error history...", ulevel);
+            let entries = info_structs::parse_loghist_table(loghist);
+            match database::insert_error_logs(&pool, &entries).await {
+                Ok(new_count) => {
+                    if new_count > 0 {
+                        info!("Inserted {} new error log entries into database", new_count);
+                    }
+                }
+                Err(e) => error!("Error inserting error log entries: {}", e),
+            }
+        }
+    }
+
+    // 2. Live data & channel values
     let values = http_client::get_data(&client, &cfg, "/data/channellive.php").await?;
     let channels = http_client::get_data(&client, &cfg, "/data/channels.php").await?;
     let channel_data = channels::parse_channels(&channels, &values).await?;
     let live_result = database::write_data_points(&pool, &channel_data, Local::now(), "live_data").await;
 
+    // 3. Settings I/O channels
     let info_sensors = http_client::get_data(&client, &cfg, "/data/settings.php").await?;
     let info_channels = sensor_info::get_channels(&info_sensors)?;
     let mut first_err = live_result.err();

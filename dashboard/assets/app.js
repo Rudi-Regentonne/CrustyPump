@@ -24,7 +24,28 @@ async function init() {
     initSortable();
     await loadChannels();
     await loadConfig();
+    await checkStatus();
     setupEventListeners();
+}
+
+async function checkStatus() {
+    try {
+        const res = await fetch(`${API_BASE}/status`);
+        if (!res.ok) return;
+        const status = await res.json();
+        const banner = document.getElementById('error-banner');
+        const bannerText = document.getElementById('error-banner-text');
+        if (banner && bannerText) {
+            if (status.has_error) {
+                banner.classList.remove('hidden');
+                bannerText.textContent = ` [${status.error_code || '?'}] ${status.error_name || 'Störung'} - ${status.error_description || ''}`;
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+    } catch (e) {
+        console.warn('Could not fetch status:', e);
+    }
 }
 
 function initSortable() {
@@ -145,6 +166,7 @@ function setupEventListeners() {
     });
 
     refreshBtn.addEventListener('click', () => {
+        checkStatus();
         refreshAllCharts();
     });
 

@@ -1,0 +1,835 @@
+{
+  "system": {
+    "name": "IDM Navigator 2.0",
+    "host": "<heatpump-ip>",
+    "port": 502,
+    "protocol": "Modbus TCP",
+    "serial": "XXXXXXXX",
+    "software_version": "20.24-311-gfbf39bd77",
+    "myidm_id": "mXXXXXX@XXXXXXXX",
+    "local_pin": "XXXX",
+    "date_extracted": "2026-10-20 10:40:52",
+    "total_registers": 91
+  },
+  "registers": [
+    {
+      "register": 68,
+      "name": "Register 68",
+      "category": "Photovoltaik / Energie & Batterie",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 70,
+      "name": "Register 70",
+      "category": "Photovoltaik / Energie & Batterie",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 72,
+      "name": "Register 72",
+      "category": "Photovoltaik / Energie & Batterie",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 74,
+      "name": "Überschuss",
+      "category": "Photovoltaik / Energie & Batterie",
+      "access": "RW",
+      "unit": "W",
+      "sample_value": "0",
+      "glt_value": null
+    },
+    {
+      "register": 76,
+      "name": "Leistung E-Heizstab",
+      "category": "Photovoltaik / Energie & Batterie",
+      "access": "RW",
+      "unit": "W",
+      "sample_value": "0",
+      "glt_value": null
+    },
+    {
+      "register": 78,
+      "name": "PV Leistung",
+      "category": "Photovoltaik / Energie & Batterie",
+      "access": "RW",
+      "unit": "W",
+      "sample_value": "0",
+      "glt_value": null
+    },
+    {
+      "register": 80,
+      "name": "Register 80",
+      "category": "Photovoltaik / Energie & Batterie",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 82,
+      "name": "Hausverbrauch",
+      "category": "Photovoltaik / Energie & Batterie",
+      "access": "RW",
+      "unit": "W",
+      "sample_value": "0",
+      "glt_value": null
+    },
+    {
+      "register": 84,
+      "name": "Batterieentladung",
+      "category": "Photovoltaik / Energie & Batterie",
+      "access": "RW",
+      "unit": "W",
+      "sample_value": "0",
+      "glt_value": null
+    },
+    {
+      "register": 86,
+      "name": "Batterie Füllstand",
+      "category": "Photovoltaik / Energie & Batterie",
+      "access": "RW",
+      "unit": "%",
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 88,
+      "name": "PV-Zielwert",
+      "category": "Photovoltaik / Energie & Batterie",
+      "access": "RW",
+      "unit": "W",
+      "sample_value": "0",
+      "glt_value": null
+    },
+    {
+      "register": 504,
+      "name": "Trennwärmetauscher",
+      "category": "System",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "0",
+      "glt_value": null
+    },
+    {
+      "register": 1000,
+      "name": "Außentemperatur",
+      "category": "Sensoren / Temperaturen",
+      "access": "RO",
+      "unit": "°C",
+      "sample_value": "9.8",
+      "glt_value": null
+    },
+    {
+      "register": 1002,
+      "name": "Mittelwert Außentem.",
+      "category": "Sensoren / Temperaturen",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "8.6",
+      "glt_value": null
+    },
+    {
+      "register": 1004,
+      "name": "interne Meldung",
+      "category": "Sensoren / Temperaturen",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "0.0",
+      "glt_value": null
+    },
+    {
+      "register": 1005,
+      "name": "Betriebsart System",
+      "category": "Sensoren / Temperaturen",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "1",
+      "glt_value": null
+    },
+    {
+      "register": 1008,
+      "name": "Wärmespeichertemperatur",
+      "category": "Sensoren / Temperaturen",
+      "access": "RO",
+      "unit": "°C",
+      "sample_value": "40.6",
+      "glt_value": null
+    },
+    {
+      "register": 1012,
+      "name": "TW-Erw. Temp. unten",
+      "category": "Sensoren / Temperaturen",
+      "access": "RO",
+      "unit": "°C",
+      "sample_value": "50.3",
+      "glt_value": null
+    },
+    {
+      "register": 1014,
+      "name": "TW-Erw. Temp. oben",
+      "category": "Sensoren / Temperaturen",
+      "access": "RO",
+      "unit": "°C",
+      "sample_value": "50.2",
+      "glt_value": null
+    },
+    {
+      "register": 1033,
+      "name": "Warmwasserladung Einschalttemperatur",
+      "category": "Sensoren / Temperaturen",
+      "access": "RW",
+      "unit": "°C",
+      "sample_value": "43",
+      "glt_value": null
+    },
+    {
+      "register": 1034,
+      "name": "Warmwasserladung Ausschalttemperatur",
+      "category": "Sensoren / Temperaturen",
+      "access": "RW",
+      "unit": "°C",
+      "sample_value": "53",
+      "glt_value": null
+    },
+    {
+      "register": 1050,
+      "name": "Wärmepumpenvorlauftemperatur",
+      "category": "Sensoren / Temperaturen",
+      "access": "RO",
+      "unit": "°C",
+      "sample_value": "45.5",
+      "glt_value": null
+    },
+    {
+      "register": 1052,
+      "name": "Rücklauffühler",
+      "category": "Sensoren / Temperaturen",
+      "access": "RO",
+      "unit": "°C",
+      "sample_value": "40.0",
+      "glt_value": null
+    },
+    {
+      "register": 1060,
+      "name": "Ansauglufttemperatur",
+      "category": "Sensoren / Temperaturen",
+      "access": "RO",
+      "unit": "°C",
+      "sample_value": "10.5",
+      "glt_value": null
+    },
+    {
+      "register": 1066,
+      "name": "Ladefühler",
+      "category": "Sensoren / Temperaturen",
+      "access": "RO",
+      "unit": "°C",
+      "sample_value": "44.9",
+      "glt_value": null
+    },
+    {
+      "register": 1076,
+      "name": "Durchflußsensor Heizung",
+      "category": "Aktoren & Bivalenz",
+      "access": "RO",
+      "unit": "l/min",
+      "sample_value": "13.9",
+      "glt_value": null
+    },
+    {
+      "register": 1090,
+      "name": "Betriebsart Wärmepumpe",
+      "category": "Aktoren & Bivalenz",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "1.0",
+      "glt_value": null
+    },
+    {
+      "register": 1091,
+      "name": "Heizanforderung",
+      "category": "Aktoren & Bivalenz",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "1.0",
+      "glt_value": null
+    },
+    {
+      "register": 1092,
+      "name": "Kühlanforderung",
+      "category": "Aktoren & Bivalenz",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "0.0",
+      "glt_value": null
+    },
+    {
+      "register": 1093,
+      "name": "Vorranganforderung",
+      "category": "Aktoren & Bivalenz",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "0.0",
+      "glt_value": null
+    },
+    {
+      "register": 1098,
+      "name": "EW/EVU Sperrkontakt",
+      "category": "Aktoren & Bivalenz",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "1.0",
+      "glt_value": null
+    },
+    {
+      "register": 1099,
+      "name": "Summenstörung Regler",
+      "category": "Aktoren & Bivalenz",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "0.0",
+      "glt_value": null
+    },
+    {
+      "register": 1100,
+      "name": "Verdichter 1",
+      "category": "Aktoren & Bivalenz",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "1.0",
+      "glt_value": null
+    },
+    {
+      "register": 1104,
+      "name": "Ladepumpe",
+      "category": "Aktoren & Bivalenz",
+      "access": "RO",
+      "unit": "%",
+      "sample_value": "60.0",
+      "glt_value": null
+    },
+    {
+      "register": 1112,
+      "name": "Ventil Heizen/Vorrang",
+      "category": "Aktoren & Bivalenz",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "0.0",
+      "glt_value": null
+    },
+    {
+      "register": 1118,
+      "name": "Zirkulationspumpe",
+      "category": "Aktoren & Bivalenz",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "0.0",
+      "glt_value": null
+    },
+    {
+      "register": 1120,
+      "name": "Bivalenzpunkt 1",
+      "category": "Aktoren & Bivalenz",
+      "access": "RW",
+      "unit": "°C",
+      "sample_value": "-5",
+      "glt_value": null
+    },
+    {
+      "register": 1121,
+      "name": "Bivalenzpunkt 2",
+      "category": "Aktoren & Bivalenz",
+      "access": "RW",
+      "unit": "°C",
+      "sample_value": "-20",
+      "glt_value": null
+    },
+    {
+      "register": 1122,
+      "name": "Bivalenzpunkt 1",
+      "category": "Aktoren & Bivalenz",
+      "access": "RW",
+      "unit": "°C",
+      "sample_value": "-5",
+      "glt_value": null
+    },
+    {
+      "register": 1123,
+      "name": "Bivalenzpunkt 2",
+      "category": "Aktoren & Bivalenz",
+      "access": "RW",
+      "unit": "°C",
+      "sample_value": "-20",
+      "glt_value": null
+    },
+    {
+      "register": 1124,
+      "name": "2./3. Wärmeerzeuger",
+      "category": "Aktoren & Bivalenz",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "0.0",
+      "glt_value": null
+    },
+    {
+      "register": 1350,
+      "name": "Vorlauftemperatur HK A",
+      "category": "Heizkreis A",
+      "access": "RO",
+      "unit": "°C",
+      "sample_value": "40.6",
+      "glt_value": null
+    },
+    {
+      "register": 1378,
+      "name": "Sollvorlauftemp. HK A",
+      "category": "Heizkreis A",
+      "access": "RO",
+      "unit": "°C",
+      "sample_value": "38.8",
+      "glt_value": null
+    },
+    {
+      "register": 1393,
+      "name": "Betriebsart Heizkreis A",
+      "category": "Heizkreis A",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "2",
+      "glt_value": null
+    },
+    {
+      "register": 1401,
+      "name": "Raumtemperatur Heizen Normal A",
+      "category": "Heizkreis A",
+      "access": "RW",
+      "unit": "°C",
+      "sample_value": "24",
+      "glt_value": null
+    },
+    {
+      "register": 1415,
+      "name": "Raumtemperatur Heizen Eco A",
+      "category": "Heizkreis A",
+      "access": "RW",
+      "unit": "°C",
+      "sample_value": "18",
+      "glt_value": null
+    },
+    {
+      "register": 1429,
+      "name": "Heizkurve A",
+      "category": "Heizkreis A",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "0.6",
+      "glt_value": null
+    },
+    {
+      "register": 1442,
+      "name": "Heizgrenze A",
+      "category": "Heizkreis A",
+      "access": "RW",
+      "unit": "°C",
+      "sample_value": "16",
+      "glt_value": null
+    },
+    {
+      "register": 1498,
+      "name": "aktive Betriebsart HK A",
+      "category": "Heizkreis A",
+      "access": "RO",
+      "unit": null,
+      "sample_value": "1.0",
+      "glt_value": null
+    },
+    {
+      "register": 1505,
+      "name": "Parallelverschiebung A",
+      "category": "Heizkreis A",
+      "access": "RW",
+      "unit": "K",
+      "sample_value": "6",
+      "glt_value": null
+    },
+    {
+      "register": 1520,
+      "name": "Minimale Vorlauftemperatur Heizen A",
+      "category": "Heizkreis A",
+      "access": "RW",
+      "unit": "°C",
+      "sample_value": "25",
+      "glt_value": null
+    },
+    {
+      "register": 1534,
+      "name": "Maximale Vorlauftemperatur Heizen A",
+      "category": "Heizkreis A",
+      "access": "RW",
+      "unit": "°C",
+      "sample_value": "55",
+      "glt_value": null
+    },
+    {
+      "register": 1650,
+      "name": "externe Raumtemperatur HKA",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 1652,
+      "name": "externe Raumtemperatur HKB",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 1654,
+      "name": "externe Raumtemperatur HKC",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 1656,
+      "name": "externe Raumtemperatur HKD",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 1658,
+      "name": "externe Raumtemperatur HKE",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 1660,
+      "name": "externe Raumtemperatur HKF",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 1662,
+      "name": "externe Raumtemperatur HKG",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 1690,
+      "name": "externe Außentemperatur",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "9.8",
+      "glt_value": null
+    },
+    {
+      "register": 1692,
+      "name": "externe Feuchte",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": null,
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 1694,
+      "name": "Externe Ansteuerung Heiztemperatur",
+      "category": "GLT Sollwertvorgaben",
+      "access": "RW",
+      "unit": "°C",
+      "sample_value": "40",
+      "glt_value": null
+    },
+    {
+      "register": 1696,
+      "name": "GLT Temperaturanforderung Heizen",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "0",
+      "glt_value": null
+    },
+    {
+      "register": 1698,
+      "name": "GLT Temperaturanforderung Kühlen",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "1e+02",
+      "glt_value": null
+    },
+    {
+      "register": 1710,
+      "name": "Externe Ansteuerung Heizen",
+      "category": "GLT Sollwertvorgaben",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "0",
+      "glt_value": null
+    },
+    {
+      "register": 1711,
+      "name": "Externe Ansteuerung Kühlen",
+      "category": "GLT Sollwertvorgaben",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "0",
+      "glt_value": null
+    },
+    {
+      "register": 1712,
+      "name": "Externe Warmwasserladung",
+      "category": "GLT Sollwertvorgaben",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "0",
+      "glt_value": null
+    },
+    {
+      "register": 1713,
+      "name": "Externe Ansteuerung einmalige Warmwasserladung",
+      "category": "GLT Sollwertvorgaben",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "0",
+      "glt_value": null
+    },
+    {
+      "register": 1714,
+      "name": "externe Anforderung Sole-/Zwischenkreispumpe",
+      "category": "GLT Sollwertvorgaben",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "-2",
+      "glt_value": null
+    },
+    {
+      "register": 1715,
+      "name": "externe Anforderung Grundwasserpumpe",
+      "category": "GLT Sollwertvorgaben",
+      "access": "RW",
+      "unit": null,
+      "sample_value": "-2",
+      "glt_value": null
+    },
+    {
+      "register": 1716,
+      "name": "GLT Wärmespeichertemperatur",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 1718,
+      "name": "GLT Kältespeichertemperatur",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 1720,
+      "name": "GLT TWW-Erwärmertemperatur unten",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 1722,
+      "name": "GLT TWW-Erwärmertemperatur oben",
+      "category": "GLT Sollwertvorgaben",
+      "access": "W",
+      "unit": "°C",
+      "sample_value": "-1",
+      "glt_value": null
+    },
+    {
+      "register": 1746,
+      "name": "Elektrische Leistungsaufnahme (gesamt)",
+      "category": "Wärmemengenzähler & Leistung",
+      "access": "RO",
+      "unit": "kW",
+      "sample_value": null,
+      "glt_value": null
+    },
+    {
+      "register": 1748,
+      "name": "Wärmemenge Heizen",
+      "category": "Wärmemengenzähler & Leistung",
+      "access": "RO",
+      "unit": "kWh",
+      "sample_value": "32613.6",
+      "glt_value": null
+    },
+    {
+      "register": 1750,
+      "name": "Wärmemenge gesamt",
+      "category": "Wärmemengenzähler & Leistung",
+      "access": "RO",
+      "unit": "kWh",
+      "sample_value": "34914.9",
+      "glt_value": null
+    },
+    {
+      "register": 1754,
+      "name": "Wärmemenge Warmwasser",
+      "category": "Wärmemengenzähler & Leistung",
+      "access": "RO",
+      "unit": "kWh",
+      "sample_value": "1885.2",
+      "glt_value": null
+    },
+    {
+      "register": 1756,
+      "name": "Wärmemenge Abtauung",
+      "category": "Wärmemengenzähler & Leistung",
+      "access": "RO",
+      "unit": "kWh",
+      "sample_value": "416.1",
+      "glt_value": null
+    },
+    {
+      "register": 1790,
+      "name": "thermische Leistung (basierend auf Durchflusssensor)",
+      "category": "Wärmemengenzähler & Leistung",
+      "access": "RO",
+      "unit": "kW",
+      "sample_value": "5.2",
+      "glt_value": null
+    },
+    {
+      "register": 1999,
+      "name": "Störung quittieren",
+      "category": "System",
+      "access": "W",
+      "unit": null,
+      "sample_value": null,
+      "glt_value": null
+    },
+    {
+      "register": 4108,
+      "name": "Leistungsbegrenzung Wärmepumpe",
+      "category": "Kaskade & Inverterleistung",
+      "access": "RW",
+      "unit": "kW / %",
+      "sample_value": null,
+      "glt_value": "-1"
+    },
+    {
+      "register": 4112,
+      "name": "Leistungsbegrenzung Kaskade",
+      "category": "Kaskade & Inverterleistung",
+      "access": "RW",
+      "unit": "kW / %",
+      "sample_value": null,
+      "glt_value": "-1"
+    },
+    {
+      "register": 4116,
+      "name": "Firmware Version IDM",
+      "category": "Kaskade & Inverterleistung",
+      "access": "RO",
+      "unit": null,
+      "sample_value": null,
+      "glt_value": null
+    },
+    {
+      "register": 4122,
+      "name": "elektrische Gesamtleistung (falls kein Wert vom Inverter vorhanden ist, wird jener vom Polynom verwendet)",
+      "category": "Kaskade & Inverterleistung",
+      "access": "RO",
+      "unit": "kW / %",
+      "sample_value": "1.1",
+      "glt_value": null
+    },
+    {
+      "register": 4124,
+      "name": "elektrische Gesamtleistung (falls kein Wert vom Inverter vorhanden ist, wird jener vom Polynom verwendet)",
+      "category": "Kaskade & Inverterleistung",
+      "access": "RO",
+      "unit": "kW / %",
+      "sample_value": "1.1",
+      "glt_value": null
+    },
+    {
+      "register": 4126,
+      "name": "thermische Leistung (basierend auf Durchflusssensor)",
+      "category": "Kaskade & Inverterleistung",
+      "access": "RO",
+      "unit": "kW / %",
+      "sample_value": "5.2",
+      "glt_value": null
+    },
+    {
+      "register": 4128,
+      "name": "Wärmemenge gesamt",
+      "category": "Kaskade & Inverterleistung",
+      "access": "RO",
+      "unit": "kWh",
+      "sample_value": "34914.9",
+      "glt_value": null
+    },
+    {
+      "register": 4132,
+      "name": "Kaskadenleistung Heizen",
+      "category": "Kaskade & Inverterleistung",
+      "access": "RW",
+      "unit": "kW / %",
+      "sample_value": null,
+      "glt_value": "-1"
+    },
+    {
+      "register": 4136,
+      "name": "Kaskadenleistung Kühlen",
+      "category": "Kaskade & Inverterleistung",
+      "access": "RW",
+      "unit": "kW / %",
+      "sample_value": null,
+      "glt_value": "-1"
+    },
+    {
+      "register": 4140,
+      "name": "Kaskadenleistung Vorrangladung",
+      "category": "Kaskade & Inverterleistung",
+      "access": "RW",
+      "unit": "kW / %",
+      "sample_value": null,
+      "glt_value": "-1"
+    }
+  ]
+}
