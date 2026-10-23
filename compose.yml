@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
 
   crustypump:
-    image: qajus/crustypump:latest
+    image: ghcr.io/rudi-regentonne/crustypump:latest
     build:
       context: .
       dockerfile: Containerfile
@@ -36,8 +36,10 @@ services:
     restart: unless-stopped
 
   dashboard:
+    image: ghcr.io/rudi-regentonne/crustypump-dashboard:latest
     build:
       context: ./dashboard
+      dockerfile: Dockerfile
     container_name: crustypump-dash
     ports:
       - "8050:8050"

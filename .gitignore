@@ -1,2 +1,8 @@
 target/
 .env
+
+# Raw log dumps containing private serial numbers & network PINs
+adminsettings.json
+error_heatpump.json
+response_techniker.json
+
