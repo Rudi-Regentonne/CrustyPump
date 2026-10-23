@@ -93,10 +93,7 @@ mod tests {
         let cfg = structs::Config {
             heatpump_ip: server.address().to_string(),
             heatpump_pin: "123".into(),
-            influx_org: "".into(),
-            influx_bucket: "".into(),
-            influx_token: "".into(),
-            influx_url: "".into(),
+            database_url: "".into(),
             cron_expression: "".into(),
         };
 

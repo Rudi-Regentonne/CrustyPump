@@ -1,7 +1,8 @@
 use chrono::Local;
 use dotenv::dotenv;
-use log::{debug, error, info};
+use log::{error, info};
 use reqwest::Client as HttpClient;
+use sqlx::PgPool;
 use std::error::Error;
 use std::sync::Mutex;
 use tokio_cron_scheduler::{Job, JobScheduler};
@@ -12,12 +13,11 @@ use tokio::signal::unix::{SignalKind, signal};
 use crate::structs::Config;
 
 mod channels;
+mod database;
 mod http_client;
-mod influx;
 mod info_structs;
 mod sensor_info;
 mod structs;
-//static AUTH_TOKEN: OnceCell<String> = OnceCell::const_new();
 
 static AUTH_TOKEN: Mutex<Option<String>> = Mutex::new(None);
 
@@ -58,6 +58,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
+    let pool = loop {
+        match database::init_pool(&cfg.database_url).await {
+            Ok(pool) => match database::run_migrations(&pool).await {
+                Ok(()) => break pool,
+                Err(e) => error!("Migration failed: {} — retrying in 2s", e),
+            },
+            Err(e) => error!("Database connection failed: {} — retrying in 2s", e),
+        }
+        tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+    };
+
     info!("Started sceduler: {}", cfg.cron_expression);
     let client = HttpClient::builder().cookie_store(true).build()?;
 
@@ -76,8 +87,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let job = Job::new_async(cron_str.as_str(), move |_uuid, _l| {
         let client_clone = client.clone();
         let cfg_clone = cfg.clone();
+        let pool_clone = pool.clone();
         Box::pin(async move {
-            if let Err(e) = scrape(client_clone, cfg_clone).await {
+            if let Err(e) = scrape(client_clone, cfg_clone, pool_clone).await {
                 error!("Error: {}", e);
             }
         })
@@ -109,17 +121,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-async fn scrape(client: reqwest::Client, cfg: Config) -> Result<(), Box<dyn std::error::Error>> {
-    let channels: String = http_client::get_data(&client, &cfg, "/data/channels.php").await?;
-    debug!("{}", channels);
+async fn scrape(client: reqwest::Client, cfg: Config, pool: PgPool) -> Result<(), Box<dyn std::error::Error>> {
     let values = http_client::get_data(&client, &cfg, "/data/channellive.php").await?;
+    let channels = http_client::get_data(&client, &cfg, "/data/channels.php").await?;
     let channel_data = channels::parse_channels(&channels, &values).await?;
-    influx::write_to_influx(&cfg, channel_data, Local::now(), "live_data").await;
+    let live_result = database::write_data_points(&pool, &channel_data, Local::now(), "live_data").await;
 
     let info_sensors = http_client::get_data(&client, &cfg, "/data/settings.php").await?;
     let info_channels = sensor_info::get_channels(&info_sensors)?;
+    let mut first_err = live_result.err();
     for (field, channel) in info_channels {
-        influx::write_to_influx(&cfg, channel, Local::now(), &field).await;
+        if let Err(e) = database::write_data_points(&pool, &channel, Local::now(), &field).await {
+            if first_err.is_none() {
+                first_err = Some(e);
+            }
+        }
+    }
+    if let Some(e) = first_err {
+        return Err(e.into());
     }
     Ok(())
 }
