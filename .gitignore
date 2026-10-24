@@ -6,3 +6,7 @@ adminsettings.json
 error_heatpump.json
 response_techniker.json
 
+# Generated PDFs
+*.pdf
+
+

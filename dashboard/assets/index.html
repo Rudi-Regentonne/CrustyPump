@@ -23,6 +23,14 @@
             <span class="subtitle">Connected to TimescaleDB</span>
         </header>
 
+        <div id="error-banner" class="hidden" style="background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 10px 16px; border-radius: 6px; margin: 10px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <strong>⚠️ Aktive Störung:</strong>
+                <span id="error-banner-text"></span>
+            </div>
+            <a href="/api/error_log.pdf" target="_blank" class="btn danger" style="padding: 4px 10px; font-size: 12px; text-decoration: none;">Fehlerbericht (PDF)</a>
+        </div>
+
         <div id="time-controls">
             <div class="control-group">
                 <label>Time Range:</label>
@@ -57,6 +65,7 @@
 
             <button id="refresh-btn" class="btn primary">Refresh</button>
             <button id="export-btn" class="btn danger export">PDF Export</button>
+            <a href="/api/error_log.pdf" target="_blank" id="error-log-btn" class="btn secondary" style="text-decoration: none; display: inline-flex; align-items: center;" title="Vollständiges Fehlerprotokoll als PDF">📄 Fehlerprotokoll</a>
         </div>
 
         <div id="body-container">

@@ -3,6 +3,7 @@ use log::error;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 
+use crate::info_structs::{ErrorLogEntry, InfoResponse};
 use crate::structs::{ChannelTypes, ParsedChannels};
 
 pub async fn init_pool(database_url: &str) -> Result<PgPool, sqlx::Error> {
@@ -60,6 +61,72 @@ pub async fn write_data_points(
         Some(e) => Err(e),
         None => Ok(()),
     }
+}
+
+pub async fn insert_error_logs(
+    pool: &PgPool,
+    entries: &[ErrorLogEntry],
+) -> Result<usize, sqlx::Error> {
+    let mut inserted = 0;
+    for entry in entries {
+        let res = sqlx::query(
+            "INSERT INTO heatpump_error_log (time, code, message, is_ack) VALUES ($1, $2, $3, $4) ON CONFLICT (time, code, message) DO NOTHING",
+        )
+        .bind(entry.datetime)
+        .bind(&entry.code)
+        .bind(&entry.message)
+        .bind(entry.is_ack)
+        .execute(pool)
+        .await?;
+        if res.rows_affected() > 0 {
+            inserted += 1;
+        }
+    }
+    Ok(inserted)
+}
+
+pub async fn update_status(pool: &PgPool, info: &InfoResponse) -> Result<(), sqlx::Error> {
+    let has_error = info.notiftype.as_deref() == Some("error")
+        || info
+            .notifications
+            .as_ref()
+            .map(|n| !n.is_empty())
+            .unwrap_or(false);
+    let first_notif = info.notifications.as_ref().and_then(|n| n.first());
+    let error_code = first_notif.and_then(|n| n.code).map(|c| c as i32);
+    let error_name = first_notif.and_then(|n| n.name.clone());
+    let error_description = first_notif.and_then(|n| n.description.clone());
+    let error_date = first_notif.and_then(|n| n.date.clone());
+    let notifications_json =
+        serde_json::to_value(&info.notifications).unwrap_or(serde_json::Value::Null);
+    let userlevel = info.userlevel.unwrap_or(0) as i32;
+
+    sqlx::query(
+        r#"
+        INSERT INTO heatpump_status (id, updated_at, userlevel, has_error, error_code, error_name, error_description, error_date, notifications)
+        VALUES (1, NOW(), $1, $2, $3, $4, $5, $6, $7)
+        ON CONFLICT (id) DO UPDATE SET
+            updated_at = EXCLUDED.updated_at,
+            userlevel = EXCLUDED.userlevel,
+            has_error = EXCLUDED.has_error,
+            error_code = EXCLUDED.error_code,
+            error_name = EXCLUDED.error_name,
+            error_description = EXCLUDED.error_description,
+            error_date = EXCLUDED.error_date,
+            notifications = EXCLUDED.notifications
+        "#,
+    )
+    .bind(userlevel)
+    .bind(has_error)
+    .bind(error_code)
+    .bind(error_name)
+    .bind(error_description)
+    .bind(error_date)
+    .bind(notifications_json)
+    .execute(pool)
+    .await?;
+
+    Ok(())
 }
 
 #[cfg(test)]
