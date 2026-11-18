@@ -36,7 +36,7 @@ pub async fn write_data_points(
         };
 
         let result = sqlx::query(
-            "INSERT INTO heatpump_data (time, measurement, channel, channel_type, val_float, val_int, val_bool, val_string) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+            "INSERT INTO heatpump_data (time, measurement, channel, channel_type, val_float, val_int, val_bool, val_string) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (time, measurement, channel) DO NOTHING",
         )
         .bind(ts)
         .bind(measurement)

@@ -48,7 +48,7 @@ async function loadChannels() {
         channels.forEach(c => {
             const opt = document.createElement('option');
             opt.value = `${c.measurement}:${c.channel}`;
-            opt.textContent = `${c.measurement} / ${c.channel}`;
+            opt.textContent = c.channel;
             channelSelector.appendChild(opt);
         });
     } catch (e) {
@@ -274,7 +274,7 @@ function renderTiles() {
         header.className = 'tile-header';
         const title = document.createElement('div');
         title.className = 'tile-title';
-        title.textContent = `${t.channel} (${t.measurement})`;
+        title.textContent = t.channel;
         const controls = document.createElement('div');
         controls.className = 'tile-controls';
         const removeBtn = document.createElement('button');
