@@ -102,6 +102,16 @@ async fn main() {
 }
 
 async fn fetch_channels(db: &PgPool) -> Result<Vec<Channel>, sqlx::Error> {
+    let recent = sqlx::query_as::<_, Channel>(
+        "SELECT DISTINCT ON (channel) channel, measurement FROM heatpump_data WHERE time >= NOW() - INTERVAL '7 days' ORDER BY channel, time DESC",
+    )
+    .fetch_all(db)
+    .await?;
+
+    if !recent.is_empty() {
+        return Ok(recent);
+    }
+
     sqlx::query_as::<_, Channel>(
         "SELECT DISTINCT ON (channel) channel, measurement FROM heatpump_data ORDER BY channel, time DESC",
     )
