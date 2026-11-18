@@ -9,17 +9,26 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{PgPool, postgres::PgPoolOptions};
 use std::net::SocketAddr;
-use std::sync::Arc;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
+use std::time::{Duration, Instant};
+use tokio::sync::RwLock;
 use tower_http::services::ServeDir;
 use log::{info, error};
+
+const CHANNELS_CACHE_TTL: Duration = Duration::from_secs(600);
 
 #[derive(Clone)]
 struct AppState {
     db: PgPool,
     config_path: String,
+    channels_cache: Arc<RwLock<Option<(Instant, Vec<Channel>)>>>,
+    refreshing_channels: Arc<AtomicBool>,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 struct Channel {
     channel: String,
     measurement: String,
@@ -28,7 +37,8 @@ struct Channel {
 #[derive(Deserialize)]
 struct DataQuery {
     channel: String,
-    measurement: String,
+    #[allow(dead_code)]
+    measurement: Option<String>,
     start: String,
     end: String,
     granularity: String,
@@ -66,7 +76,17 @@ async fn main() {
     let state = AppState {
         db: pool,
         config_path,
+        channels_cache: Arc::new(RwLock::new(None)),
+        refreshing_channels: Arc::new(AtomicBool::new(false)),
     };
+
+    // Warm the channel list cache at startup so the first dropdown load is instant.
+    let warmup_state = state.clone();
+    tokio::spawn(async move {
+        if let Err(e) = refresh_channels_cache(&warmup_state).await {
+            error!("Initial channel cache warmup failed: {}", e);
+        }
+    });
 
     let app = Router::new()
         .route("/api/channels", get(get_channels))
@@ -81,13 +101,41 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn get_channels(State(state): State<AppState>) -> Result<Json<Vec<Channel>>, StatusCode> {
-    let rows = sqlx::query_as::<_, Channel>(
-        "SELECT DISTINCT channel, measurement FROM heatpump_data ORDER BY channel"
+async fn fetch_channels(db: &PgPool) -> Result<Vec<Channel>, sqlx::Error> {
+    sqlx::query_as::<_, Channel>(
+        "SELECT DISTINCT ON (channel) channel, measurement FROM heatpump_data ORDER BY channel, time DESC",
     )
-    .fetch_all(&state.db)
+    .fetch_all(db)
     .await
-    .map_err(|e| {
+}
+
+async fn refresh_channels_cache(state: &AppState) -> Result<Vec<Channel>, sqlx::Error> {
+    let rows = fetch_channels(&state.db).await?;
+    let mut guard = state.channels_cache.write().await;
+    *guard = Some((Instant::now(), rows.clone()));
+    Ok(rows)
+}
+
+async fn get_channels(State(state): State<AppState>) -> Result<Json<Vec<Channel>>, StatusCode> {
+    {
+        let guard = state.channels_cache.read().await;
+        if let Some((cached_at, ref rows)) = *guard {
+            if cached_at.elapsed() >= CHANNELS_CACHE_TTL
+                && !state.refreshing_channels.swap(true, Ordering::AcqRel)
+            {
+                let bg_state = state.clone();
+                tokio::spawn(async move {
+                    if let Err(e) = refresh_channels_cache(&bg_state).await {
+                        error!("Background channel cache refresh failed: {}", e);
+                    }
+                    bg_state.refreshing_channels.store(false, Ordering::Release);
+                });
+            }
+            return Ok(Json(rows.clone()));
+        }
+    }
+
+    let rows = refresh_channels_cache(&state).await.map_err(|e| {
         error!("DB error: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
@@ -109,16 +157,15 @@ async fn get_data(
     // Handle granularity formatting slightly if needed, e.g. "1 hour", "15 minutes"
     let rows = sqlx::query_as::<_, DataResponse>(
         r#"
-        SELECT time_bucket(CAST($5 AS interval), time) AS "bucket",
+        SELECT time_bucket(CAST($4 AS interval), time) AS "bucket",
                AVG(COALESCE(val_float, val_int::float8, val_bool::int::float8)) AS "val"
         FROM heatpump_data
-        WHERE channel = $1 AND measurement = $2 AND time >= $3 AND time <= $4
+        WHERE channel = $1 AND time >= $2 AND time <= $3
         GROUP BY bucket
         ORDER BY bucket
         "#
     )
     .bind(&params.channel)
-    .bind(&params.measurement)
     .bind(start_dt.with_timezone(&Utc))
     .bind(end_dt.with_timezone(&Utc))
     .bind(&params.granularity)
