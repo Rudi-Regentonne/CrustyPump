@@ -1,7 +1,16 @@
+FROM oven/bun:1 AS frontend-builder
+
+WORKDIR /usr/src/frontend
+COPY frontend/package.json frontend/bun.lock ./
+RUN bun install --frozen-lockfile
+COPY frontend/ .
+RUN bun run build
+
 FROM rust:1-slim AS builder
 
 WORKDIR /usr/src/app
-COPY . .
+COPY Cargo.toml Cargo.lock ./
+COPY src ./src
 RUN cargo build --release
 
 FROM debian:bookworm-slim
@@ -9,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 
 WORKDIR /app
 COPY --from=builder /usr/src/app/target/release/heatpump-dashboard /app/heatpump-dashboard
-COPY assets /app/assets
+COPY --from=frontend-builder /usr/src/assets /app/assets
 
 EXPOSE 8050
 ENV RUST_LOG=info

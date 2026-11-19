@@ -1,4 +1,7 @@
 target/
+node_modules/
+.devenv*
+devenv.local.nix
 .env
 
 # Raw log dumps containing private serial numbers & network PINs

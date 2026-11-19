@@ -3,6 +3,7 @@ body, html {
     padding: 0;
     font-family: system-ui, -apple-system, sans-serif;
     height: 100vh;
+    height: 100dvh;
     background: #f4f7f6;
     overflow: hidden;
 }
@@ -11,7 +12,7 @@ body, html {
     box-sizing: border-box;
 }
 
-#app {
+#root, #app {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -26,6 +27,12 @@ header {
     align-items: center;
 }
 
+.header-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
 header h1 {
     margin: 0;
     font-size: 22px;
@@ -34,6 +41,10 @@ header h1 {
 header .subtitle {
     font-size: 13px;
     opacity: 0.9;
+}
+
+.mobile-only {
+    display: none;
 }
 
 #time-controls {
@@ -52,6 +63,19 @@ header .subtitle {
     gap: 8px;
 }
 
+.custom-time-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.control-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
 .control-group label {
     font-weight: bold;
     font-size: 14px;
@@ -64,10 +88,6 @@ select, input[type="datetime-local"] {
     border-radius: 4px;
     font-size: 14px;
     background: white;
-}
-
-.hidden {
-    display: none !important;
 }
 
 .btn {
@@ -89,7 +109,6 @@ select, input[type="datetime-local"] {
 .btn.success { background: #4caf50; color: white; }
 .btn.warning { background: #ff9800; color: white; }
 .btn.secondary { background: #607d8b; color: white; }
-.btn.export { margin-left: auto; }
 .w-100 { width: 100%; }
 .mb-10 { margin-bottom: 10px; }
 
@@ -206,14 +225,122 @@ footer {
     text-align: right;
 }
 
-/* Export Mode */
-.export-mode .tile-controls {
-    display: none !important;
-}
-.export-mode .tile {
-    page-break-inside: avoid;
-    break-inside: avoid;
-    margin-bottom: 20px;
-    box-shadow: none;
-    border: 1px solid #ccc;
+/* Mobile Layout */
+@media (max-width: 768px) {
+    body, html {
+        height: auto;
+        min-height: 100dvh;
+        overflow: auto;
+    }
+
+    #root, #app {
+        height: auto;
+        min-height: 100dvh;
+    }
+
+    header {
+        padding: 10px 14px;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    header h1 {
+        font-size: 18px;
+    }
+
+    .mobile-only {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #time-controls {
+        padding: 10px 14px;
+        gap: 10px;
+    }
+
+    .control-group {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+    }
+
+    .custom-time-field {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+        width: 100%;
+    }
+
+    select, input[type="datetime-local"] {
+        width: 100%;
+        font-size: 16px;
+        min-height: 40px;
+    }
+
+    .control-actions {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .control-actions .btn {
+        flex: 1;
+        min-height: 42px;
+        margin-left: 0;
+    }
+
+    #body-container {
+        flex-direction: column;
+        overflow: visible;
+    }
+
+    #sidebar {
+        display: none;
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+        padding: 14px;
+        overflow-y: visible;
+    }
+
+    #sidebar.open {
+        display: flex;
+    }
+
+    #sidebar .btn {
+        min-height: 42px;
+    }
+
+    #main-area {
+        padding: 12px;
+        overflow-y: visible;
+    }
+
+    .tile {
+        padding: 12px;
+    }
+
+    .tile-title {
+        font-size: 15px;
+        overflow-wrap: anywhere;
+    }
+
+    .tile-controls button.remove {
+        min-width: 36px;
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .chart-container {
+        height: 240px;
+    }
+
+    footer {
+        padding: 8px 14px;
+        text-align: center;
+    }
 }
